@@ -1,6 +1,7 @@
 import express, { json, Router, urlencoded } from "express"
 import 'dotenv/config'
 import router from "./src/routes/user.routes.js"
+import errorHandlerMiddleware from "./src/middlewares/errorHandler.Middleware.js";
 
 const app = express()
 
@@ -14,10 +15,8 @@ app.use("/user",router);
 
 
 
+app.use(errorHandlerMiddleware)
 
-// app.use("/",(req, res) => {
-//   res.send('GET request to the homepage')
-// });
 
 
 
