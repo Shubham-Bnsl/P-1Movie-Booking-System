@@ -29,7 +29,6 @@ const userSchema = new Schema({
     },
     avatar:{
         type: String,
-        required: true,
         default:"https://pbs.twimg.com/profile_images/1707398013398974464/lu87Drbo_400x400.jpg"
     },
     refreshToken:{
@@ -42,12 +41,18 @@ const userSchema = new Schema({
 },{timestamps:true})
 
 
-userSchema.methods.generateEncryptPassword = function(password){
-    
-    const newPassword = bcrypt.hashSync(password, 10);
-    return newPassword;
+userSchema.pre('save',async function(next){
 
-}
+        if(!this.isModified('password')){
+            return next();
+        }
+
+        this.password = await bcrypt.hash(this.password, 10);
+        next();
+        
+}) 
+    
+
 
 
 export const User = mongoose.model("User",userSchema);
