@@ -1,7 +1,17 @@
+import errorHandler from "../../utility/errorHandler.js";
 import { User } from "../modals/user.modal.js";
+import 'dotenv/config'
 
 
-export const CreateUser = async (req, res) => {
+const generateAccessRefreshToken = (user) => {
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+
+        return {accessToken,refreshToken}
+}
+
+
+export const CreateUser = async (req, res, next) => {
 
         // email,name req.body
         // find in user userschema if it found return user already present
@@ -9,7 +19,11 @@ export const CreateUser = async (req, res) => {
         // create newuser and update
         try {
 
-                const { email, username, password } = req.body;
+                const { email, username, password, age } = req.body;
+
+                if (!email || !username || !age || !password) {
+                        return next(errorHandler(404, "All Fields are required"))
+                }
 
                 const user = await User.findOne({ email: email });
 
@@ -25,28 +39,105 @@ export const CreateUser = async (req, res) => {
                         age: req.body.age,
                         email: email,
                         phoneNumber: req.body.phoneNumber,
-                        password:password,
+                        password: password,
                         avatar: req.body.avatar,
                         refreshToken: null
 
                 });
 
-                const modifiedUser  = await User.findById(newUser._id).select('-password')
+                const modifiedUser = await User.findById(newUser._id).select('-password')
 
                 return res.status(201).json({
                         message: "new user is created",
-                        user:modifiedUser,
+                        user: modifiedUser,
                 })
 
         } catch (error) {
-                return res.status(400).json({
-                        message: error.message,
-                        error
-                })
+                return next(errorHandler("400", error))
         }
 
-} 
+}
 
-export const LoginUser = async (req,res,next) =>{
+export const LoginUser = async (req, res, next) => {
+        // get details email and password
+        // check user is present or not 
+        // checking password correct or not
+        // generate token refresh and access 
+        // then set it in cookies
+
+        try {
+                const { email, password } = req.body;
+
+                const user = await User.findOne({ email });
+
+                if (!user) {
+                        return next(errorHandler(404, "User is not registered"))
+                }
+
+                const match = await user.isPasswordCorrect(password)
+
+                if (!match) {
+                        return next(errorHandler(404, "Invalid credentails! Please Provide correct Input"))
+                }
+
+                const {accessToken,refreshToken} = generateAccessRefreshToken(user)
+                // const accessToken = generateAccessToken(user)
+                // const refreshToken = generateRefreshToken(user)
+
+
+                user.refreshToken = refreshToken;
+
+                const newUser = await User.findById(user._id).select('-password -refreshToken')
+
+                await newUser.save();
+
+
+
+                return res
+                        .status(201)
+                        .cookie('accessToken', accessToken, { secure: true, httpOnly: true })
+                        .cookie('refreshToken', refreshToken, { secure: true, httpOnly: true })
+                        .json({
+                                message: "User is Logged in",
+                                user: newUser,
+                                success: true,
+                        })
+
+
+        } catch (error) {
+                return next(errorHandler(404, "something went wrong while login"));
+        }
 
 }
+
+export const Logout = async (req, res, next) => {
+        // get user from req.user 
+        // auth -> req.user = email
+        // set user refreshtoken to null
+        // clear cookies
+        //
+        try {
+
+                const user = req.user
+
+                if (!user) {
+                    return next(errorHandler(401,"Unauthorized request"))
+                }
+                
+                user.refreshToken = null;
+                await user.save();
+                
+                res
+                .status(200)
+                .clearCookie('accessToken')
+                .clearCookie('refreshToken')
+                .json({
+                        message:"User is logged out",
+                        success:true
+                })
+                
+        } catch (error) {
+                return next(errorHandler(400,"Something wrong happend while logout"))
+        }
+}
+
