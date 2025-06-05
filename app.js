@@ -1,5 +1,5 @@
 import express, { json, Router, urlencoded } from "express"
-import 'dotenv/config'
+
 import router from "./src/routes/user.routes.js"
 import errorHandlerMiddleware from "./src/middlewares/errorHandler.Middleware.js";
 import cookieParser from "cookie-parser";
