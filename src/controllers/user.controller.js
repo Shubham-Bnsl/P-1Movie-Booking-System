@@ -2,14 +2,22 @@ import jwt from "jsonwebtoken";
 import errorHandler from "../../utility/errorHandler.js";
 import { User } from "../modals/user.modal.js";
 import 'dotenv/config'
+import uploadImageOnCLoudinary from "../../utility/cloudinary.js";
 
 
 const generateAccessRefreshToken = (user) => {
-        const accessToken = user.generateAccessToken();
-        const refreshToken = user.generateRefreshToken();
+        try {
+                const accessToken = user.generateAccessToken();
+                const refreshToken = user.generateRefreshToken();
+        
+                return { accessToken, refreshToken }
+        
+        } catch (error) {
+                return next(error)
+        }
 
-        return { accessToken, refreshToken }
 }
+
 
 
 export const CreateUser = async (req, res, next) => {
@@ -33,20 +41,27 @@ export const CreateUser = async (req, res, next) => {
                                 message: "User already Exist"
                         })
                 }
+                
+                const avatarPath = req.files?.avatar[0]?.path;
+                const avatarUrl = await uploadImageOnCLoudinary(avatarPath);
+                
+                if(!avatarUrl){
+                        return next(errorHandler(400,"Didn't get Avatar url"))
+                }
+        
+                        const newUser = await User.create({
+                                username: username,
+                                age: req.body.age,
+                                email: email,
+                                phoneNumber: req.body.phoneNumber,
+                                password: password,
+                                avatar: avatarUrl.url,
+                                refreshToken: null
+        
+                        });
 
 
-                const newUser = await User.create({
-                        username: username,
-                        age: req.body.age,
-                        email: email,
-                        phoneNumber: req.body.phoneNumber,
-                        password: password,
-                        avatar: req.body.avatar,
-                        refreshToken: null
-
-                });
-
-                const modifiedUser = await User.findById(newUser._id).select('-password')
+                        const modifiedUser = await User.findById(newUser._id).select('-password')
 
                 return res.status(201).json({
                         message: "new user is created",
@@ -85,10 +100,9 @@ export const LoginUser = async (req, res, next) => {
                 // const accessToken = generateAccessToken(user)
                 // const refreshToken = generateRefreshToken(user)
 
-
-                user.refreshToken = refreshToken;
-
+                
                 const newUser = await User.findById(user._id).select('-password -refreshToken')
+                newUser.refreshToken = refreshToken;
 
                 await newUser.save();
 
@@ -153,37 +167,37 @@ export const refreshTokenHandler = async (req, res, next) => {
         // generate refreshToken ,accesstoken and set users refreshToken 
         // save user
         // return and set cookie
-try {
-        
+        try {
+
                 const { refreshToken } = req.cookies
-        
+
                 if (!refreshToken) {
                         return next(errorHandler(401, "refresh token not found! Please login in"))
                 }
-        
+
                 const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN)
-        
+
                 const { _id } = payload
-        
+
                 const user = await User.findById({ _id })
-        
+
                 if (!user) {
                         return next(errorHandler(404, "User not found!Please log in"))
                 }
 
-                if(refreshToken !== user.refreshToken){
-                        return next(errorHandler(403,"Refresh token is expired or used"))
+                if (refreshToken !== user.refreshToken) {
+                        return next(errorHandler(403, "Refresh token is expired or used"))
                 }
-        
+
                 const token = generateAccessRefreshToken(user)
-        
+
                 const newAccessToken = token.accessToken
                 const newRefreshToken = token.refreshToken
-        
-        
+
+
                 user.refreshToken = newRefreshToken;
                 await user.save();
-        
+
                 return res
                         .status(200)
                         .cookie('accessToken', newAccessToken, { secure: true, httpOnly: true })
@@ -192,11 +206,60 @@ try {
                                 message: "Access token is generated",
                                 success: true
                         })
-        
-} catch (error) {
-        return next()
-}
+
+        } catch (error) {
+                return next()
+        }
 
 }
+
+export const updateProfile = async(req ,res,next)=> {
+        // get id 
+        //find by id and update 
+        //set updates fields
+        // return
+        
+       try {
+         const {_id} = req.user;
+         const {age,phoneNumber} = req.body
+         
+         if(!age || !phoneNumber){
+                 return next(errorHandler(400,"Age, PhoneNumber any of field is missing"))
+         }
+ 
+         const avatarPath = req.files?.avatar[0]?.path;
+ 
+         if(!avatarPath){
+                 return next(errorHandler(400,"Didn't get the Avatar Path"))
+         }
+ 
+         const avatarUrl = await uploadImageOnCLoudinary(avatarPath);
+ 
+         if(!avatarUrl){
+                 return next(errorHandler(400,"Didn't get the Avatar url"))
+         }
+ 
+ 
+         const user = await User.findByIdAndUpdate(_id,{
+                 $set:{
+                         age:age,
+                         avatar:avatarUrl,
+                         phoneNumber,
+ 
+                 }
+         },{new:true})
+ 
+         await user.save();
+ 
+         return res.status(200).json({
+                 message:"User profile is updated",
+                 user:user
+         })
+       } catch (error) {
+        return next(error)
+       }
+
+}
+
 
 

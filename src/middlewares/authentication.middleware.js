@@ -23,7 +23,7 @@ const authenticate = async (req, res, next) => {
         const {email} = token;
 
         const user = await User.findOne({email})
-        console.log(user)
+       
 
         if(!user){
             return next(errorHandler(401,"Invalid Access Token"))
