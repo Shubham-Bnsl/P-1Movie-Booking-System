@@ -3,9 +3,9 @@ import { CreateUser, LoginUser, Logout, refreshTokenHandler, updateProfile } fro
 import authenticate from "../middlewares/authentication.middleware.js";
 import upload from "../middlewares/multer.middleware.js";
 
-const router = express.Router();
+const userRouter = express.Router();
 
-router
+userRouter
 .post("/signup",upload.fields([{ name: 'avatar', maxCount: 1 }]),CreateUser)
 .post("/login",LoginUser)
 .get("/logout",authenticate,Logout)
@@ -14,4 +14,4 @@ router
 
 
 
-export default router;
+export default userRouter;

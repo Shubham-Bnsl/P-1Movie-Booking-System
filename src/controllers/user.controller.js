@@ -19,7 +19,6 @@ const generateAccessRefreshToken = (user) => {
 }
 
 
-
 export const CreateUser = async (req, res, next) => {
 
         // email,name req.body
@@ -74,7 +73,7 @@ export const CreateUser = async (req, res, next) => {
 
 }
 
-export const LoginUser = async (req, res, next) => {
+export const LoginUser = async(req, res, next) => {
         // get details email and password
         // check user is present or not 
         // checking password correct or not
@@ -125,7 +124,7 @@ export const LoginUser = async (req, res, next) => {
 
 }
 
-export const Logout = async (req, res, next) => {
+export const Logout = async(req, res, next) => {
         // get user from req.user 
         // auth -> req.user = email
         // set user refreshtoken to null
@@ -157,7 +156,7 @@ export const Logout = async (req, res, next) => {
 }
 
 
-export const refreshTokenHandler = async (req, res, next) => {
+export const refreshTokenHandler = async(req, res, next) => {
 
         // take refresh token from req.cookies
         // if not present throw error
@@ -260,6 +259,5 @@ export const updateProfile = async(req ,res,next)=> {
        }
 
 }
-
 
 
