@@ -68,7 +68,7 @@ export const CreateUser = async (req, res, next) => {
                 })
 
         } catch (error) {
-                return next(errorHandler("400", error))
+                return next(error)
         }
 
 }

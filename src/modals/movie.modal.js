@@ -8,7 +8,7 @@ const movieSchema = new mongoose.Schema({
         uppercase: true,
         unique: [true, "name is not Unique"],
     },
-    age: {
+    agelimit: {
         type: Number,
         required: true,
     },
@@ -18,9 +18,9 @@ const movieSchema = new mongoose.Schema({
         maxLength: [300, "words limit exceeds"]
     },
     genre: {
-        type: String,
+        type: [String],
         enum: {
-            values: ["Comedy", "Drama", "Horror", "Romantic", "Adventure"],
+            values: ["comedy", "drama", "horror", "romantic", "adventure"],
             message: '{VALUE} is not in genre'
         },
         required: true,
@@ -32,7 +32,7 @@ const movieSchema = new mongoose.Schema({
 
     },
     releaseDate: {
-        type: String,
+        type: Date,
         required: true,
     },
     language: {
@@ -48,6 +48,6 @@ const movieSchema = new mongoose.Schema({
         type: Number,
         required: true,
     }
-})
+},{timestamps:true})
 
 export const Movie = mongoose.model("Movie",movieSchema);
