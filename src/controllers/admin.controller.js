@@ -1,3 +1,4 @@
+import uploadImageOnCLoudinary from "../../utility/cloudinary.js";
 import errorHandler from "../../utility/errorHandler.js";
 import { Movie } from "../modals/movie.modal.js"
 
@@ -7,12 +8,20 @@ export const addMovie = async (req, res, next) => {
     // find movie in schema if its not then forward
     // create new movie and save
     try {
-        const { name, agelimit, description, genre, posterUrl, releaseDate, language, cast, duration } = req.body
+        const { name, agelimit, description, genre, releaseDate, language, cast, duration } = req.body
     
         const movie = await Movie.findOne({ name });
     
         if (movie) {
             return next(errorHandler(400, "Movie is already added"))
+        }
+
+        const posterUrlPath = req.files?.posterUrl[0]?.path
+
+        const posterURL = await uploadImageOnCLoudinary(posterUrlPath)
+
+        if(!posterURL){
+            return next(errorHandler(400,"Poster Url not found"))
         }
 
 
@@ -22,7 +31,7 @@ export const addMovie = async (req, res, next) => {
             agelimit,
             description,
             genre,
-            posterUrl,
+            posterUrl:posterURL,
             releaseDate: new Date(releaseDate),
             language,
             cast,
@@ -36,6 +45,7 @@ export const addMovie = async (req, res, next) => {
         })
 
     } catch (error) {
+        console.log("hi")
         return next(error)
     }
 
@@ -50,21 +60,24 @@ export const updateMovie = async(req,res,next)=>{
 
     try {
         const {id} = req.params;
-        const {posterUrl,cast} = req.body
+      
         
         if(!id){
             return next(errorHandler(400,"Movie is not present"))
         }
 
-        if(!posterUrl){
-            return next(errorHandler(400,"posterUrl is not present"))
+        const posterUrlPath = req.files?.posterUrl[0]?.path
+
+        const posterURL = await uploadImageOnCLoudinary(posterUrlPath)
+
+        if(!posterURL){
+            return next(errorHandler(400,"Poster Url not found"))
         }
     
         const movie = await Movie.findByIdAndUpdate(id,{
     
             $set:{
-                posterUrl,
-                cast
+                posterUrl:posterURL,
             }
         },{new:true})
 

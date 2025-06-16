@@ -27,3 +27,5 @@ export const getMovieByName = async(req,res,next)=>{
 }
 
 
+
+
