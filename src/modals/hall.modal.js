@@ -16,6 +16,6 @@ totalSeats:{
 },
 
 
-})
+},{timestamps:true})
 
 export const Hall = mongoose.model("Hall",hallSchema); 

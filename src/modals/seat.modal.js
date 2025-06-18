@@ -4,13 +4,14 @@ const seatSchema = new mongoose.Schema({
 
     type:{
         type:String,
-        enum:['classic','prime','recliner'],
+        enum:["classic","prime","recliner"],
         required:true,
         lowercase:true
     },
     number:{
         type:String,
         required:true,
+        unique:true
     },
     price:{
         type:Number,
