@@ -1,5 +1,5 @@
 import errorHandler from "../../utility/errorHandler.js"
-import { Hall } from "../modals/hall.modal.js"
+import { Hall } from "../models/hall.model.js"
 
 export const createHall = async (req, res, next) => {
     try {

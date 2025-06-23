@@ -1,7 +1,7 @@
 import express from 'express'
 import authenticate from '../middlewares/authentication.middleware.js';
 import adminAuth from '../middlewares/adminAuth.middleware.js';
-import { addMovie, deleteMovie, fetchMovies, updateMovie } from '../controllers/admin.controller.js';
+import { addMovie, deleteMovie, fetchMovies, updateMovie } from '../controllers/admin.controllers.js';
 import upload from '../middlewares/multer.middleware.js';
 
 const adminRouter = express.Router();

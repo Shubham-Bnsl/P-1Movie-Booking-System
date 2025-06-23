@@ -1,6 +1,6 @@
 import errorHandler from "../../utility/errorHandler.js";
-import { Hall } from "../modals/hall.modal.js";
-import { Seat } from "../modals/seat.modal.js";
+import { Hall } from "../models/hall.model.js";
+import { Seat } from "../models/seat.model.js";
 
 export const createSeat = async (req, res, next) => {
 

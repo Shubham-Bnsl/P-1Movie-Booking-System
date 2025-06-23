@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import errorHandler from "../../utility/errorHandler.js";
-import { User } from "../modals/user.modal.js";
+import { User } from "../models/user.model.js";
 import 'dotenv/config'
 import uploadImageOnCLoudinary from "../../utility/cloudinary.js";
 

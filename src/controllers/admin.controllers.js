@@ -1,6 +1,6 @@
 import uploadImageOnCLoudinary from "../../utility/cloudinary.js";
 import errorHandler from "../../utility/errorHandler.js";
-import { Movie } from "../modals/movie.modal.js"
+import { Movie } from "../models/movie.model.js"
 
 export const addMovie = async (req, res, next) => {
 

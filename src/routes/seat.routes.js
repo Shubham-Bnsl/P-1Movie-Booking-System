@@ -10,3 +10,4 @@ seatRouter
 .get("/getAllSeats",authenticate,adminAuth,getAllSeats)
 
 export default seatRouter;
+
