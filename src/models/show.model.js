@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const showSchema = mongoose.Schema({
+const showSchema = new mongoose.Schema({
 
     hall:{
         type:mongoose.Schema.Types.ObjectId,
@@ -14,12 +14,12 @@ const showSchema = mongoose.Schema({
     },
     movie:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"movie",
-        required:true
+        ref:"Movie",
+        required:true,
     },
     date:{
         type:Date,
-        requried:true
+        required:true
     },
 
 },{timestamps:true})
