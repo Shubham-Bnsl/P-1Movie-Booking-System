@@ -63,21 +63,21 @@ export const updateShow = async (req, res, next) => {
     try {
         const { id } = req.params
         const { timing, movie, date } = req.body;
-    
+
         if (!id) {
             return next(errorHandler(400, "Id is not present"))
         }
-    
+
         if (!timing || !movie || !date) {
             return next(errorHandler(400, "any input is missing"))
         }
-    
+
         const show = await Show.findOne({ _id: id })
-    
+
         if (!show) {
             return next(errorHandler(400, "Show is not present"))
         }
-        
+
 
         const movieInfo = await Movie.findOne({ name: movie.toUpperCase() })
 
@@ -92,12 +92,12 @@ export const updateShow = async (req, res, next) => {
             $set: {
                 timing,
                 date: new Date(date),
-                movie:movieId
+                movie: movieId
             }
-        },{new:true})
-    
+        }, { new: true })
+
         return res.status(200).json({
-            message:"Successfully updated show",
+            message: "Successfully updated show",
             newShow
         })
     } catch (error) {
@@ -105,28 +105,67 @@ export const updateShow = async (req, res, next) => {
     }
 }
 
-export const deleteShow = async(req,res,next)=>{
-        try {
-            const {id} = req.params;
-    
-            if (!id) {
-                return next(errorHandler(400, "Id is not present"))
-            }
-    
-            const show = await Show.findByIdAndDelete({_id:id})
-    
-            if(!show){
-                            return next(errorHandler(400, "got some issue while deleting"))
-    
-            }
-    
-            return res.status(200).json({
-                message:"Show is deleted Successfully",
-                show,
-                success:true,
-    
-            })
-        } catch (error) {
-            return next(error)
+export const deleteShow = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return next(errorHandler(400, "Id is not present"))
         }
+
+        const show = await Show.findByIdAndDelete({ _id: id })
+
+        if (!show) {
+            return next(errorHandler(400, "got some issue while deleting"))
+
+        }
+
+        return res.status(200).json({
+            message: "Show is deleted Successfully",
+            show,
+            success: true,
+
+        })
+    } catch (error) {
+        return next(error)
+    }
+}
+
+
+export const getAllShow = async (req, res, next) => {
+    try {
+
+        const { movie, date } = req.body
+
+        if (!movie || !date) {
+            return next(errorHandler(400, "any input is missing"))
+        }
+
+
+        const movieInfo = await Movie.findOne({ name: movie.toUpperCase() });
+
+        if (!movieInfo) {
+            return next(errorHandler(400, "Movie is not created yet"))
+        }
+
+        const show = await Show.find({ movie:movieInfo._id, date })
+
+        if (!show) {
+
+            return next(errorHandler(400, "Didn't get the Shows"))
+
+        }
+
+        return res.status(200).json({
+            message: "Shows fetched Successfully",
+            show,
+            success: true
+        })
+
+    } catch (error) {
+        return next(error)
+    }
+
+
+
 }
