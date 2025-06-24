@@ -7,8 +7,9 @@ const ticketSchema = mongoose.Schema({
         ref:"User",
         required:true
     },
-    seatType:[{
-        type:String,
+    seats:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Seat",
         required:true,
     }],
     price:{
@@ -32,4 +33,4 @@ const ticketSchema = mongoose.Schema({
 
 },{timestamps:true})
 
-export const ticket = mongoose.model('ticket',ticketSchema) 
+export const Ticket = mongoose.model('Ticket',ticketSchema) 
